@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<h1 style="margin-top:0;">Заказ #{{ order.id }}</h1>
+
+<p><strong>Клиент:</strong> {{ order.customer.name }} ({{ order.customer.phone }})</p>
+
+<h3>Блюда:</h3>
+<ul style="padding-left:20px;">
+    {% for dish in order.dishes %}
+        <li>{{ dish.name }} — {{ dish.price }} руб.</li>
+    {% endfor %}
+</ul>
+
+<p style="font-weight:bold; font-size:1.1em;">Итого: {{ order.totalPrice }} руб.</p>
+
+<div style="margin-top:20px;">
+    <a href="{{ path('app_order_edit', {id: order.id}) }}" style="color:#007bff; margin-right:15px;">Редактировать</a>
+    <a href="{{ path('app_order_index') }}" style="color:#6c757d;">Назад к заказам</a>
+</div>
+{% endblock %}

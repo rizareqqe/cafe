@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<h1 style="margin-top:0;">Меню</h1>
+
+<a href="{{ path('app_dish_new') }}" style="margin-bottom:15px; display:inline-block; color:#007bff;">
+    + Добавить блюдо
+</a>
+
+<ul style="list-style:none; padding:0;">
+    {% for dish in dishes %}
+        <li style="padding:8px; border-bottom:1px solid #eee;">
+            {{ dish.name }} — {{ dish.price }} руб.
+            <a href="{{ path('app_dish_edit', {id: dish.id}) }}" style="margin-left:10px; color:#007bff;">изменить</a>
+        </li>
+    {% else %}
+        <li style="padding:8px; color:#999;">Меню пустое</li>
+    {% endfor %}
+</ul>
+{% endblock %}

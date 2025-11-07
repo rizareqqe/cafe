@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<h1 style="margin-top:0;">Панель управления</h1>
+
+<div style="border:1px solid #ddd; padding:15px; margin-bottom:20px;">
+    <strong>Заказов:</strong> {{ total_orders }} 
+    <a href="{{ path('app_order_index') }}" style="margin-left:10px;">все</a>
+</div>
+
+<div style="border:1px solid #ddd; padding:15px; margin-bottom:20px;">
+    <strong>Клиентов:</strong> {{ total_customers }} 
+    <a href="{{ path('app_customer_index') }}" style="margin-left:10px;">все</a>
+</div>
+
+<div style="border:1px solid #ddd; padding:15px; margin-bottom:30px;">
+    <strong>Блюд в меню:</strong> {{ total_dishes }} 
+    <a href="{{ path('app_dish_index') }}" style="margin-left:10px;">меню</a>
+</div>
+
+<h3>Последние заказы</h3>
+<ul style="list-style:none; padding:0; margin:0;">
+    {% for order in recent_orders %}
+        <li style="padding:8px; border-bottom:1px solid #eee;">
+            #{{ order.id }} — {{ order.customer.name }} — {{ order.totalPrice }} руб.
+            <a href="{{ path('app_order_show', {id: order.id}) }}" style="margin-left:10px; color:#007bff;">→</a>
+        </li>
+    {% else %}
+        <li style="padding:8px; color:#999;">Нет заказов</li>
+    {% endfor %}
+</ul>
+{% endblock %}
