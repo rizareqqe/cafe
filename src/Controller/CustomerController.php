@@ -14,68 +14,56 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/customer')]
 final class CustomerController extends AbstractController
 {
-    #[Route(name: 'app_customer_index', methods: ['GET'])]
-    public function index(CustomerRepository $customerRepository): Response
+    #[Route('', name: 'app_customer_index', methods: ['GET'])]
+    public function index(CustomerRepository $repo): Response
     {
         return $this->render('customer/index.html.twig', [
-            'customers' => $customerRepository->findAll(),
+            'customers' => $repo->findAll(),
         ]);
     }
 
     #[Route('/new', name: 'app_customer_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $em): Response
     {
         $customer = new Customer();
         $form = $this->createForm(CustomerType::class, $customer);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($customer);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_customer_index', [], Response::HTTP_SEE_OTHER);
+            $em->persist($customer);
+            $em->flush();
+            return $this->redirectToRoute('app_customer_index');
         }
 
         return $this->render('customer/new.html.twig', [
-            'customer' => $customer,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_customer_show', methods: ['GET'])]
-    public function show(Customer $customer): Response
-    {
-        return $this->render('customer/show.html.twig', [
-            'customer' => $customer,
-        ]);
-    }
-
     #[Route('/{id}/edit', name: 'app_customer_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Customer $customer, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Customer $customer, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(CustomerType::class, $customer);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_customer_index', [], Response::HTTP_SEE_OTHER);
+            $em->flush();
+            return $this->redirectToRoute('app_customer_index');
         }
 
         return $this->render('customer/edit.html.twig', [
-            'customer' => $customer,
             'form' => $form,
+            'customer' => $customer,
         ]);
     }
 
     #[Route('/{id}', name: 'app_customer_delete', methods: ['POST'])]
-    public function delete(Request $request, Customer $customer, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Customer $customer, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$customer->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($customer);
-            $entityManager->flush();
+        if ($this->isCsrfTokenValid('delete' . $customer->getId(), $request->request->get('_token'))) {
+            $em->remove($customer);
+            $em->flush();
         }
-
-        return $this->redirectToRoute('app_customer_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_customer_index');
     }
 }

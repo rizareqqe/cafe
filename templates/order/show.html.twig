@@ -1,20 +1,17 @@
-{% extends 'base.html.twig' %}
-{% block body %}
-<h1 style="margin-top:0;">Заказ #{{ order.id }}</h1>
+<h1>Заказ #{{ order.id }}</h1>
+<p><strong>Клиент:</strong> {{ order.customer }}</p>
+<p><strong>Итого:</strong> {{ order.totalPrice }} ₽</p>
 
-<p><strong>Клиент:</strong> {{ order.customer.name }} ({{ order.customer.phone }})</p>
-
-<h3>Блюда:</h3>
-<ul style="padding-left:20px;">
+<h5>Блюда:</h5>
+<ul>
     {% for dish in order.dishes %}
-        <li>{{ dish.name }} — {{ dish.price }} руб.</li>
+        <li>{{ dish.name }} — {{ dish.price }} ₽</li>
     {% endfor %}
 </ul>
 
-<p style="font-weight:bold; font-size:1.1em;">Итого: {{ order.totalPrice }} руб.</p>
-
-<div style="margin-top:20px;">
-    <a href="{{ path('app_order_edit', {id: order.id}) }}" style="color:#007bff; margin-right:15px;">Редактировать</a>
-    <a href="{{ path('app_order_index') }}" style="color:#6c757d;">Назад к заказам</a>
-</div>
-{% endblock %}
+<h5>Документ:</h5>
+{% if order.documentName %}
+    <a href="{{ vich_uploader_asset(order) }}" target="_blank" class="btn btn-info">Скачать {{ order.documentName }}</a>
+{% else %}
+    <p><em>Нет документа</em></p>
+{% endif %}

@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Order;
+use App\Entity\OrderEntity;
 use App\Form\OrderType;
 use App\Repository\OrderRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,36 +14,34 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/order')]
 final class OrderController extends AbstractController
 {
-    #[Route(name: 'app_order_index', methods: ['GET'])]
-    public function index(OrderRepository $orderRepository): Response
+    #[Route('', name: 'app_order_index', methods: ['GET'])]
+    public function index(OrderRepository $repo): Response
     {
         return $this->render('order/index.html.twig', [
-            'orders' => $orderRepository->findAll(),
+            'orders' => $repo->findAll(),
         ]);
     }
 
     #[Route('/new', name: 'app_order_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $em): Response
     {
-        $order = new Order();
+        $order = new OrderEntity();
         $form = $this->createForm(OrderType::class, $order);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($order);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_order_index', [], Response::HTTP_SEE_OTHER);
+            $em->persist($order);
+            $em->flush();
+            return $this->redirectToRoute('app_order_index');
         }
 
         return $this->render('order/new.html.twig', [
-            'order' => $order,
             'form' => $form,
         ]);
     }
 
     #[Route('/{id}', name: 'app_order_show', methods: ['GET'])]
-    public function show(Order $order): Response
+    public function show(OrderEntity $order): Response
     {
         return $this->render('order/show.html.twig', [
             'order' => $order,
@@ -51,31 +49,40 @@ final class OrderController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_order_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Order $order, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, OrderEntity $order, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(OrderType::class, $order);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_order_index', [], Response::HTTP_SEE_OTHER);
+            $em->flush();
+            return $this->redirectToRoute('app_order_index');
         }
 
         return $this->render('order/edit.html.twig', [
-            'order' => $order,
             'form' => $form,
+            'order' => $order,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_order_delete', methods: ['POST'])]
-    public function delete(Request $request, Order $order, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/delete-document', name: 'app_order_delete_document', methods: ['POST'])]
+    public function deleteDocument(Request $request, OrderEntity $order, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$order->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($order);
-            $entityManager->flush();
+        if ($this->isCsrfTokenValid('delete-document' . $order->getId(), $request->request->get('_token'))) {
+            $order->setDocumentName(null);
+            $em->flush();
+            $this->addFlash('success', 'Документ удалён');
         }
+        return $this->redirectToRoute('app_order_edit', ['id' => $order->getId()]);
+    }
 
-        return $this->redirectToRoute('app_order_index', [], Response::HTTP_SEE_OTHER);
+    #[Route('/{id}', name: 'app_order_delete', methods: ['POST'])]
+    public function delete(Request $request, OrderEntity $order, EntityManagerInterface $em): Response
+    {
+        if ($this->isCsrfTokenValid('delete' . $order->getId(), $request->request->get('_token'))) {
+            $em->remove($order);
+            $em->flush();
+        }
+        return $this->redirectToRoute('app_order_index');
     }
 }

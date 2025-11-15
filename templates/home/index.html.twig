@@ -1,31 +1,58 @@
 {% extends 'base.html.twig' %}
+
 {% block body %}
-<h1 style="margin-top:0;">Панель управления</h1>
+<div class="container">
+    <h1>Панель управления</h1>
 
-<div style="border:1px solid #ddd; padding:15px; margin-bottom:20px;">
-    <strong>Заказов:</strong> {{ total_orders }} 
-    <a href="{{ path('app_order_index') }}" style="margin-left:10px;">все</a>
-</div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Заказов</h5>
+                    <p class="card-text display-4">{{ total_orders }}</p>
+                    <a href="{{ path('app_order_index') }}" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Клиентов</h5>
+                    <p class="card-text display-4">{{ total_customers }}</p>
+                    <a href="{{ path('app_customer_index') }}" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Блюд</h5>
+                    <p class="card-text display-4">{{ total_dishes }}</p>
+                    <a href="{{ path('app_dish_index') }}" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div style="border:1px solid #ddd; padding:15px; margin-bottom:20px;">
-    <strong>Клиентов:</strong> {{ total_customers }} 
-    <a href="{{ path('app_customer_index') }}" style="margin-left:10px;">все</a>
-</div>
+    <hr>
 
-<div style="border:1px solid #ddd; padding:15px; margin-bottom:30px;">
-    <strong>Блюд в меню:</strong> {{ total_dishes }} 
-    <a href="{{ path('app_dish_index') }}" style="margin-left:10px;">меню</a>
-</div>
-
-<h3>Последние заказы</h3>
-<ul style="list-style:none; padding:0; margin:0;">
-    {% for order in recent_orders %}
-        <li style="padding:8px; border-bottom:1px solid #eee;">
-            #{{ order.id }} — {{ order.customer.name }} — {{ order.totalPrice }} руб.
-            <a href="{{ path('app_order_show', {id: order.id}) }}" style="margin-left:10px; color:#007bff;">→</a>
-        </li>
+    <h3>Последние заказы</h3>
+    {% if recent_orders|length > 0 %}
+        <ul class="list-group">
+            {% for order in recent_orders %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Заказ #{{ order.id }} — {{ order.customer.name }} — {{ order.totalPrice }} руб.
+                    <a href="{{ path('app_order_show', {id: order.id}) }}" class="btn btn-sm btn-outline-primary">Подробнее</a>
+                </li>
+            {% endfor %}
+        </ul>
     {% else %}
-        <li style="padding:8px; color:#999;">Нет заказов</li>
-    {% endfor %}
-</ul>
+        <p class="text-muted">Нет заказов</p>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ path('app_dish_index') }}" class="btn btn-success me-2">Меню</a>
+        <a href="{{ path('app_order_new') }}" class="btn btn-info">Новый заказ</a>
+    </div>
+</div>
 {% endblock %}

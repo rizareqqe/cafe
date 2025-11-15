@@ -14,68 +14,67 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/dish')]
 final class DishController extends AbstractController
 {
-    #[Route(name: 'app_dish_index', methods: ['GET'])]
-    public function index(DishRepository $dishRepository): Response
+    #[Route('', name: 'app_dish_index', methods: ['GET'])]
+    public function index(DishRepository $repo): Response
     {
         return $this->render('dish/index.html.twig', [
-            'dishes' => $dishRepository->findAll(),
+            'dishes' => $repo->findAll(),
         ]);
     }
 
     #[Route('/new', name: 'app_dish_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $em): Response
     {
         $dish = new Dish();
         $form = $this->createForm(DishType::class, $dish);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($dish);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_dish_index', [], Response::HTTP_SEE_OTHER);
+            $em->persist($dish);
+            $em->flush();
+            return $this->redirectToRoute('app_dish_index');
         }
 
         return $this->render('dish/new.html.twig', [
-            'dish' => $dish,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_dish_show', methods: ['GET'])]
-    public function show(Dish $dish): Response
-    {
-        return $this->render('dish/show.html.twig', [
-            'dish' => $dish,
-        ]);
-    }
-
     #[Route('/{id}/edit', name: 'app_dish_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Dish $dish, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Dish $dish, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(DishType::class, $dish);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_dish_index', [], Response::HTTP_SEE_OTHER);
+            $em->flush();
+            return $this->redirectToRoute('app_dish_index');
         }
 
         return $this->render('dish/edit.html.twig', [
-            'dish' => $dish,
             'form' => $form,
+            'dish' => $dish,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_dish_delete', methods: ['POST'])]
-    public function delete(Request $request, Dish $dish, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/delete-image', name: 'app_dish_delete_image', methods: ['POST'])]
+    public function deleteImage(Request $request, Dish $dish, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$dish->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($dish);
-            $entityManager->flush();
+        if ($this->isCsrfTokenValid('delete-image' . $dish->getId(), $request->request->get('_token'))) {
+            $dish->setImageName(null);
+            $em->flush();
+            $this->addFlash('success', 'Фото удалено');
         }
+        return $this->redirectToRoute('app_dish_edit', ['id' => $dish->getId()]);
+    }
 
-        return $this->redirectToRoute('app_dish_index', [], Response::HTTP_SEE_OTHER);
+    #[Route('/{id}', name: 'app_dish_delete', methods: ['POST'])]
+    public function delete(Request $request, Dish $dish, EntityManagerInterface $em): Response
+    {
+        if ($this->isCsrfTokenValid('delete' . $dish->getId(), $request->request->get('_token'))) {
+            $em->remove($dish);
+            $em->flush();
+        }
+        return $this->redirectToRoute('app_dish_index');
     }
 }

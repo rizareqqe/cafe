@@ -2,63 +2,66 @@
 
 namespace App\Entity;
 
-use App\Repository\DishRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Symfony\Component\HttpFoundation\File\File;
 
-#[ORM\Entity(repositoryClass: DishRepository::class)]
+#[ORM\Entity]
+#[Vich\Uploadable]
 class Dish
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: 'Название обязательно')]
     private ?string $name = null;
 
     #[ORM\Column]
-    #[Assert\GreaterThan(0, message: 'Цена должна быть больше 0')]
     private ?int $price = null;
 
-    #[ORM\ManyToMany(targetEntity: Order::class, mappedBy: 'dishes')]
-    private Collection $orders;
+    #[Vich\UploadableField(mapping: 'dish_image', fileNameProperty: 'imageName')]
+    private ?File $imageFile = null;
 
-    public function __construct()
-    {
-        $this->orders = new ArrayCollection();
-    }
+    #[ORM\Column(nullable: true)]
+    private ?string $imageName = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
-
     public function getName(): ?string
     {
         return $this->name;
     }
-
-    public function setName(string $name): static
+    public function setName(string $name): self
     {
         $this->name = $name;
         return $this;
     }
-
     public function getPrice(): ?int
     {
         return $this->price;
     }
-
-    public function setPrice(int $price): static
+    public function setPrice(int $price): self
     {
         $this->price = $price;
         return $this;
     }
 
-    public function __toString(): string
+    public function setImageFile(?File $file = null): void
     {
-        return $this->name . ' — ' . $this->price . ' руб.';
+        $this->imageFile = $file;
+    }
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+    public function getImageName(): ?string
+    {
+        return $this->imageName;
+    }
+    public function setImageName(?string $name): void
+    {
+        $this->imageName = $name;
     }
 }
