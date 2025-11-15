@@ -1,28 +1,31 @@
-{# templates/order/edit.html.twig #}
-{% extends 'base.html.twig' %}
+{{ form_start(form) }}
+    {{ form_row(form.customer) }}
+    {{ form_row(form.dishes) }}
 
-{% block title %}Редактировать заказ{% endblock %}
+    <h4>Документы</h4>
+    <div id="order-documents"
+         data-prototype="{{ form_widget(form.documents.vars.prototype)|e('html_attr') }}"
+         data-index="{{ form.documents|length }}">
+        {% for doc in form.documents %}
+            <div class="mb-2">
+                {{ form_widget(doc) }}
+            </div>
+        {% endfor %}
+    </div>
+    <button type="button" class="btn btn-sm btn-secondary" onclick="addDoc()">+ Добавить файл</button>
 
-{% block body %}
-    <h1>Редактировать заказ</h1>
+    <hr>
+    <button class="btn btn-primary">Сохранить</button>
+{{ form_end(form) }}
 
-    {{ form_start(form) }}
-        {{ form_widget(form) }}
-
-        {% if order.documentName %}
-            <p><strong>Текущий документ:</strong> {{ order.documentName }} ({{ (order.documentSize / 1024)|round(2) }} KB)</p>
-        {% endif %}
-
-        <button class="btn btn-primary">Сохранить</button>
-    {{ form_end(form) }}
-
-    <a href="{{ path('app_order_index') }}" class="btn btn-secondary">Назад</a>
-
-    {% if order.documentName %}
-        <hr>
-        <form method="post" action="{{ path('app_order_delete_document', {'id': order.id}) }}" onsubmit="return confirm('Удалить документ?');">
-            <input type="hidden" name="_token" value="{{ csrf_token('delete-document' ~ order.id) }}">
-            <button class="btn btn-danger">Удалить документ</button>
-        </form>
-    {% endif %}
-{% endblock %}
+<script>
+function addDoc() {
+    const holder = document.getElementById('order-documents');
+    const index = parseInt(holder.dataset.index);
+    const proto = holder.dataset.prototype.replace(/__name__/g, index);
+    const div = document.createElement('div');
+    div.innerHTML = proto;
+    holder.appendChild(div);
+    holder.dataset.index = index + 1;
+}
+</script>

@@ -5,12 +5,9 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
-use Symfony\Component\HttpFoundation\File\File;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'orders')]
-#[Vich\Uploadable]
 class OrderEntity
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
@@ -22,15 +19,13 @@ class OrderEntity
     #[ORM\ManyToMany(targetEntity: Dish::class)]
     private Collection $dishes;
 
-    #[Vich\UploadableField(mapping: 'order_document', fileNameProperty: 'documentName')]
-    private ?File $documentFile = null;
-
-    #[ORM\Column(nullable: true)]
-    private ?string $documentName = null;
+    #[ORM\OneToMany(mappedBy: 'order', targetEntity: OrderDocument::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
+    private Collection $documents;
 
     public function __construct()
     {
         $this->dishes = new ArrayCollection();
+        $this->documents = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -46,6 +41,7 @@ class OrderEntity
         $this->customer = $c;
         return $this;
     }
+
     public function getDishes(): Collection
     {
         return $this->dishes;
@@ -61,21 +57,22 @@ class OrderEntity
         return $this;
     }
 
-    public function setDocumentFile(?File $f = null): void
+    public function getDocuments(): Collection
     {
-        $this->documentFile = $f;
+        return $this->documents;
     }
-    public function getDocumentFile(): ?File
+    public function addDocument(OrderDocument $d): self
     {
-        return $this->documentFile;
+        if (!$this->documents->contains($d)) {
+            $this->documents->add($d);
+            $d->setOrder($this);
+        }
+        return $this;
     }
-    public function getDocumentName(): ?string
+    public function removeDocument(OrderDocument $d): self
     {
-        return $this->documentName;
-    }
-    public function setDocumentName(?string $n): void
-    {
-        $this->documentName = $n;
+        $this->documents->removeElement($d);
+        return $this;
     }
 
     public function getTotalPrice(): int

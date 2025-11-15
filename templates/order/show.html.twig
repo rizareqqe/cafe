@@ -1,17 +1,16 @@
-<h1>Заказ #{{ order.id }}</h1>
-<p><strong>Клиент:</strong> {{ order.customer }}</p>
-<p><strong>Итого:</strong> {{ order.totalPrice }} ₽</p>
-
-<h5>Блюда:</h5>
-<ul>
-    {% for dish in order.dishes %}
-        <li>{{ dish.name }} — {{ dish.price }} ₽</li>
-    {% endfor %}
-</ul>
-
-<h5>Документ:</h5>
-{% if order.documentName %}
-    <a href="{{ vich_uploader_asset(order) }}" target="_blank" class="btn btn-info">Скачать {{ order.documentName }}</a>
+<h5>Документы ({{ order.documents|length }})</h5>
+{% if order.documents|length > 0 %}
+    <ul class="list-group">
+        {% for doc in order.documents %}
+            <li class="list-group-item d-flex justify-content-between">
+                <a href="{{ vich_uploader_asset(doc) }}" target="_blank">{{ doc.fileName }}</a>
+                <form method="post" action="{{ path('app_order_delete_document', {id: doc.id}) }}" style="display:inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete-document' ~ doc.id) }}">
+                    <button class="btn btn-sm btn-danger">Удалить</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
 {% else %}
-    <p><em>Нет документа</em></p>
+    <p><em>Нет документов</em></p>
 {% endif %}
