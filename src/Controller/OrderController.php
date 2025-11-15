@@ -33,12 +33,11 @@ final class OrderController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($order);
             $em->flush();
-            $this->addFlash('success', 'Заказ создан');
             return $this->redirectToRoute('app_order_index');
         }
 
         return $this->render('order/new.html.twig', [
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 
@@ -58,37 +57,25 @@ final class OrderController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
-            $this->addFlash('success', 'Заказ обновлён');
-            return $this->redirectToRoute('app_order_index');
+            return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
         }
 
         return $this->render('order/edit.html.twig', [
-            'form' => $form,
+            'form' => $form->createView(),
             'order' => $order,
         ]);
     }
 
-    #[Route('/document/{id}', name: 'app_order_delete_document', methods: ['POST'])]
-    public function deleteDocument(Request $request, OrderDocument $doc, EntityManagerInterface $em): Response
+    #[Route('/document/{id}', name: 'app_order_delete_doc', methods: ['POST'])]
+    public function deleteDoc(OrderDocument $doc, EntityManagerInterface $em, Request $request): Response
     {
-        if ($this->isCsrfTokenValid('delete-document' . $doc->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $doc->getId(), $request->request->get('_token'))) {
             $orderId = $doc->getOrder()->getId();
             $em->remove($doc);
             $em->flush();
-            $this->addFlash('success', 'Файл удалён');
-            return $this->redirectToRoute('app_order_edit', ['id' => $orderId]);
+            return $this->redirectToRoute('app_order_show', ['id' => $orderId]);
         }
-        return $this->redirectToRoute('app_order_index');
-    }
 
-    #[Route('/{id}', name: 'app_order_delete', methods: ['POST'])]
-    public function delete(Request $request, OrderEntity $order, EntityManagerInterface $em): Response
-    {
-        if ($this->isCsrfTokenValid('delete' . $order->getId(), $request->request->get('_token'))) {
-            $em->remove($order);
-            $em->flush();
-            $this->addFlash('success', 'Заказ удалён');
-        }
         return $this->redirectToRoute('app_order_index');
     }
 }

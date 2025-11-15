@@ -2,29 +2,26 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Еда на заказ</title>
+    <title>{% block title %}Ресторан{% endblock %}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
+        nav { background: #333; padding: 10px; margin-bottom: 20px; }
+        nav a { color: white; margin-right: 20px; text-decoration: none; }
+        nav a:hover { text-decoration: underline; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; background: white; min-height: 80vh; }
+    </style>
 </head>
-<body style="font-family: Arial, sans-serif; margin:0; padding:0; background:#f9f9f9;">
-    
-<nav style="background:#333; padding:10px; margin-bottom:20px;">
+<body>
+   <nav style="background:#333; padding:10px; margin-bottom:20px;">
     <a href="{{ path('app_home') }}" style="color:white; margin-right:20px; text-decoration:none;">Главная</a>
     <a href="{{ path('app_customer_index') }}" style="color:white; margin-right:20px; text-decoration:none;">Клиенты</a>
     <a href="{{ path('app_dish_index') }}" style="color:white; margin-right:20px; text-decoration:none;">Меню</a>
     <a href="{{ path('app_order_index') }}" style="color:white; margin-right:20px; text-decoration:none;">Заказы</a>
-    <a href="{{ path('app_order_new') }}" style="background:#28a745; color:white; padding:5px 10px; text-decoration:none; font-weight:bold;">+ Заказ</a>
+    <a href="{{ path('app_order_new') }}" style="background:#28a745; color:white; padding:5px 10px; text-decoration:none; font-weight:bold;">+ Новый заказ</a>
 </nav>
 
-<div style="max-width:900px; margin:0 auto; padding:20px; background:white; min-height:80vh;">
-    
-    {% for label, messages in app.flashes %}
-        {% for message in messages %}
-            <div style="background:#d4edda; color:#155724; padding:10px; margin-bottom:10px; border:1px solid #c3e6cb;">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endfor %}
-
-    {{ block('body') }}
-</div>
+    <div class="container">
+        {% block body %}{% endblock %}
+    </div>
 </body>
 </html>
